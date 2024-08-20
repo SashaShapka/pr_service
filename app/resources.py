@@ -8,7 +8,7 @@ from api_models import input_data_model
 
 from datetime import datetime
 
-ns = Namespace("pr_api")
+ns = Namespace("api/tg_pr")
 
 
 @ns.route("/status")
