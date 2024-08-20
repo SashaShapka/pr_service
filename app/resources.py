@@ -32,13 +32,14 @@ class ProxyAPi(Resource):
         kluch = gen_kluch()
         token = os.getenv("TOKEN")
         target_url = os.getenv("TARGET_URL")
-        tg_ids = ns.payload["tg_id"]
+        tg_ids = ns.payload.get("tg_id")
+        tel_numbers = ns.payload.get("tel")
         headers = {
             'Content-Type': 'application/json',
             'token': token,
             'kluch': kluch
         }
-        data = {"tg_id": tg_ids}
+        data = {"tg_id": tg_ids} if tg_ids else {"tel": tel_numbers} if tel_numbers else {}
         with httpx.Client() as client:
             response = client.post(target_url, headers=headers, json=data)
 
