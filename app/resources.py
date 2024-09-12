@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import os
 import httpx
+from werkzeug.exceptions import GatewayTimeout
 
 from flask_restx import Resource, Namespace
 from api_models import input_data_model
@@ -40,7 +41,12 @@ class ProxyAPi(Resource):
             'kluch': kluch
         }
         data = {"tg_id": tg_ids} if tg_ids else {"tel": tel_numbers} if tel_numbers else {}
-        with httpx.Client() as client:
-            response = client.post(target_url, headers=headers, json=data)
-
-        return response.json()
+        timeout = httpx.Timeout(15.0)
+        try:
+            with httpx.Client(timeout=timeout) as client:
+                response = client.post(target_url, headers=headers, json=data)
+                response.raise_for_status()
+            return response.json()
+        except httpx.RequestError as exc:
+            if isinstance(exc, httpx.TimeoutException):
+                raise GatewayTimeout
