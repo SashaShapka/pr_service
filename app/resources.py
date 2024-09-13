@@ -3,7 +3,6 @@ import hashlib
 import os
 import httpx
 from werkzeug.exceptions import GatewayTimeout
-from unittest.mock import patch
 
 from flask_restx import Resource, Namespace
 from api_models import input_data_model
@@ -43,13 +42,11 @@ class ProxyAPi(Resource):
         }
         data = {"tg_id": tg_ids} if tg_ids else {"tel": tel_numbers} if tel_numbers else {}
         timeout = httpx.Timeout(15.0)
-        with patch('httpx.Client.post') as mock_post:
-            mock_post.side_effect = httpx.TimeoutException("Request timed out")
-            try:
-                with httpx.Client(timeout=timeout) as client:
-                    response = client.post(target_url, headers=headers, json=data)
-                    response.raise_for_status()
-                return response.json()
-            except httpx.RequestError as exc:
-                if isinstance(exc, httpx.TimeoutException):
-                    raise GatewayTimeout
+        try:
+            with httpx.Client(timeout=timeout) as client:
+                response = client.post(target_url, headers=headers, json=data)
+                response.raise_for_status()
+            return response.json()
+        except httpx.RequestError as exc:
+            if isinstance(exc, httpx.TimeoutException):
+                raise GatewayTimeout
