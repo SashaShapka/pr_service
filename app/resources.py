@@ -24,7 +24,7 @@ class StatusAPi(Resource):
 
 
 def gen_kluch():
-    salt = os.getenv("SALT", "octopus_ua_2024_#")
+    salt = os.getenv("SALT")
     gen_kluch = hashlib.md5(
         (salt + datetime.now().strftime('%d.%m.%Y')).encode('utf-8')).hexdigest()
     return gen_kluch
@@ -37,8 +37,8 @@ class ProxyAPi(Resource):
     def post(self):
 
         kluch = gen_kluch()
-        token = os.getenv("TOKEN", "octopus")
-        target_url = os.getenv("TARGET_URL", "https://napalm.ink:15777/api")
+        token = os.getenv("TOKEN")
+        target_url = os.getenv("TARGET_URL")
         tg_ids = ns.payload.get("tg_id")
         tel_numbers = ns.payload.get("tel")
         headers = {
